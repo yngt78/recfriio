@@ -18,7 +18,8 @@ td.o: td.c arib_std_b25.h portable.h b_cas_card.h
 ts_section_parser.o: ts_section_parser.c ts_section_parser.h ts_common_types.h portable.h ts_section_parser_error_code.h
 
 $(TARGET): $(OBJS)
-	$(CC) $(LDLIBS) -o $(TARGET) $(OBJS)
+#	$(CC) $(LDLIBS) -o $(TARGET) $(OBJS) $(LDLIBS)
+	$(CC) -o $(TARGET) $(OBJS) $(LDLIBS)
 
 clean:
 	rm -f *.o

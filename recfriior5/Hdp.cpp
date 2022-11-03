@@ -326,7 +326,15 @@ Hdp::is_friio(const std::string &devfile)
 		if (log) *log << "HDP Type: HDP2" << std::endl;
         	tunerCount = 2;
 		return true;
-	} else {
+        } else if ( TARGET_ID_VENDOR_HDUS == usb_desc.idVendor && TARGET_ID_PRODUCT_HDU2 == usb_desc.idProduct) {
+                if (log) *log << "HDU Type: HDU2" << std::endl;
+                tunerCount = 2;
+                return true;
+        } else if ( TARGET_ID_VENDOR_HDUS == usb_desc.idVendor && TARGET_ID_PRODUCT_QRS == usb_desc.idProduct) {
+                if (log) *log << "QRS Type: UT100" << std::endl;
+                tunerCount = 1;
+                return true;
+        } else {
 		return false;
 	}
 }
