@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "usb_linux.h"
 
@@ -40,6 +41,8 @@
 int
 main(int argc, char *argv[])
 {
+    while(1) {
+
     char* buffer = NULL;
     size_t syssize;
 
@@ -81,9 +84,12 @@ main(int argc, char *argv[])
 	send_firm(ugen, 0xab, idx, firm, 0x2800, 0x1000);
 	send_firm(ugen, 0xac, idx, firm, 0x3800, 0x0800);
 
+    sleep(3);
+    continue;
   ERROR:        
 
         close_device( ugen );
         if( buffer ) free( buffer );
 	return EXIT_SUCCESS;
+}
 }
