@@ -43,53 +43,53 @@ main(int argc, char *argv[])
 {
     while(1) {
 
-    char* buffer = NULL;
-    size_t syssize;
+        char* buffer = NULL;
+        size_t syssize;
 
-    usb_dev_handle* ugen = NULL;
-    uint8_t *firm;
+        usb_dev_handle* ugen = NULL;
+        uint8_t *firm;
 
-	int16_t idx;
-	int sys;
+        int16_t idx;
+        int sys;
 
-	if ((sys = open("SKNET_AS11Loader.sys", O_RDONLY)) == -1){
-            fprintf( stderr, "could not open SKNET_AS11Loader.sys\n");
-            goto ERROR;
+        if ((sys = open("SKNET_AS11Loader.sys", O_RDONLY)) == -1){
+                fprintf( stderr, "could not open SKNET_AS11Loader.sys\n");
+                goto ERROR;
+            }
+
+            syssize = 0x4000 + 0xa90;
+            buffer = (char*)malloc( syssize );
+            if( read( sys, buffer, syssize ) != syssize ){
+                fprintf( stderr, "could not read SKNET_AS11Loader.sys\n");
+                goto ERROR;
+            }
+
+            firm = buffer + 0xa88;
+        if ((firm[0] == 0x66 && firm[1] == 0x4d) /* CD 1.0 */ ||
+            (firm[0] == 0x21 && firm[1] == 0x51) /* CD 1.1 */){
+            idx = ((int16_t)(firm[1]) << 8) | firm[0];
+                    fprintf( stderr, "idx = 0x%x\n", idx );
+            }
+        else {
+            fprintf(stderr, "unknown SKNET_AS11Loader.sys\n");
+            exit(EXIT_FAILURE);
         }
 
-        syssize = 0x4000 + 0xa90;
-        buffer = (char*)malloc( syssize );
-        if( read( sys, buffer, syssize ) != syssize ){
-            fprintf( stderr, "could not read SKNET_AS11Loader.sys\n");
-            goto ERROR;
-        }
+            ugen = init_device( IDVENDOR, IDPRODUCT );
+            if( ! ugen ) goto ERROR;
 
-        firm = buffer + 0xa88;
-	if ((firm[0] == 0x66 && firm[1] == 0x4d) /* CD 1.0 */ ||
-	    (firm[0] == 0x21 && firm[1] == 0x51) /* CD 1.1 */){
-		idx = ((int16_t)(firm[1]) << 8) | firm[0];
-                fprintf( stderr, "idx = 0x%x\n", idx );
-        }
-	else {
-		fprintf(stderr, "unknown SKNET_AS11Loader.sys\n");
-		exit(EXIT_FAILURE);
-	}
+            firm = buffer + 0xa90;
+        send_firm(ugen, 0xab, idx, firm, 0x0000, 0x0c00);
+        send_firm(ugen, 0xab, idx, firm, 0x2000, 0x0400);
+        send_firm(ugen, 0xab, idx, firm, 0x2800, 0x1000);
+        send_firm(ugen, 0xac, idx, firm, 0x3800, 0x0800);
 
-        ugen = init_device( IDVENDOR, IDPRODUCT );
-        if( ! ugen ) goto ERROR;
+        sleep(3);
+        continue;
+    ERROR:
 
-        firm = buffer + 0xa90;
-	send_firm(ugen, 0xab, idx, firm, 0x0000, 0x0c00);
-	send_firm(ugen, 0xab, idx, firm, 0x2000, 0x0400);
-	send_firm(ugen, 0xab, idx, firm, 0x2800, 0x1000);
-	send_firm(ugen, 0xac, idx, firm, 0x3800, 0x0800);
-
-    sleep(3);
-    continue;
-  ERROR:        
-
-        close_device( ugen );
-        if( buffer ) free( buffer );
-	return EXIT_SUCCESS;
-}
+            close_device( ugen );
+            if( buffer ) free( buffer );
+        return EXIT_SUCCESS;
+    }
 }
