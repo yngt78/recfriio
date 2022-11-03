@@ -3,7 +3,7 @@ B25      = -DB25
 HDUS     = -DHDUS
 UDP      = -DUDP
 #HTTP     = -DHTTP
-TSSL     = -DTSSL
+#TSSL     = -DTSSL
 
 ifdef B25
   B25_PATH = ../arib25
